@@ -2,6 +2,7 @@ package com.crowdin.cli.utils;
 
 import com.crowdin.cli.BaseCli;
 import com.crowdin.cli.client.BranchClient;
+import com.crowdin.cli.client.DirectoryClient;
 import com.crowdin.cli.client.ProjectWrapper;
 import com.crowdin.cli.properties.FileBean;
 import com.crowdin.cli.properties.PropertiesBean;
@@ -278,15 +279,10 @@ public class CommandUtils extends BaseCli {
                 }
 
                 if (proceedDirectories.contains(node)) {
-                    CrowdinRequestBuilder<Page<Directory>> directoriesApi = new DirectoriesApi(settings).getProjectDirectories(projectId.toString(), Pageable.unpaged());
-                    projectDirectories = PaginationUtil.unpaged(directoriesApi);
-                    parentId = projectDirectories
-                            .stream()
-                            .filter(directory -> directory.getName().equalsIgnoreCase(node))
-                            .findFirst()
+                    parentId = new DirectoryClient(settings)
+                            .getProjectBranchByName(projectId, node)
                             .map(Directory::getId)
                             .orElse(null);
-
                 }
             }
         }
