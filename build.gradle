@@ -2,8 +2,12 @@ plugins {
     id 'java'
 }
 
+plugins {
+    id 'jacoco'
+}
+
 group 'com.crowdin'
-version '3.0.3'
+version '3.0.4'
 
 sourceCompatibility = 1.8
 
@@ -12,7 +16,6 @@ if (!hasProperty('mainClass')) {
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-
 
 repositories {
     mavenCentral()
@@ -41,9 +44,8 @@ dependencies {
 
 
     compile files('libs/crowdin-1.0.jar')
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile('org.junit.jupiter:junit-jupiter:5.5.2')
 }
-
 
 task buildCrowdinCliJar(type: Jar) {
     manifest {
@@ -54,4 +56,23 @@ task buildCrowdinCliJar(type: Jar) {
     baseName = 'crowdin-cli'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion = "0.8.5"
+    reportsDir = file("$buildDir/reports")
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+        xml.destination file("${buildDir}/coverage.xml")
+    }
+
+    getExecutionData().setFrom("$buildDir/jacoco/test.exec")
 }
